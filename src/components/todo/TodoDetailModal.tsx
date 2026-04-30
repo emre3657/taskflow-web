@@ -2,37 +2,13 @@ import { useEffect } from 'react';
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FocusTrap } from '@/components/ui/FocusTrap';
 import type { Todo } from '@/features/todos/types';
+import { formatFullDateTime } from '@/features/todos/date-utils';
+import { badgeColor } from '@/features/todos/priority-utils';
 
 interface TodoDetailModalProps {
   open: boolean;
   todo: Todo | null;
   onClose: () => void;
-}
-
-function formatFullDateTime(value: string | null | undefined) {
-  if (!value) return 'Not set';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Invalid date';
-
-  return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-}
-
-function badgeColor(priority: Todo['priority']) {
-  switch (priority) {
-    case 'HIGH':
-      return 'bg-red-100 text-red-700';
-    case 'MEDIUM':
-      return 'bg-amber-100 text-amber-700';
-    default:
-      return 'bg-emerald-100 text-emerald-700';
-  }
 }
 
 export function TodoDetailModal({ open, todo, onClose }: TodoDetailModalProps) {

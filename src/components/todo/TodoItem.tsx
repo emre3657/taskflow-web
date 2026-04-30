@@ -1,4 +1,6 @@
 import type { Todo } from '@/features/todos/types';
+import { formatLocalDateTime } from '@/features/todos/date-utils';
+import { badgeColor } from '@/features/todos/priority-utils';
 
 interface TodoItemProps {
   todo: Todo;
@@ -6,31 +8,6 @@ interface TodoItemProps {
   onEdit: (todo: Todo) => void;
   onDelete: (todo: Todo) => void;
   onViewDetails: (todo: Todo) => void;
-}
-
-function badgeColor(priority: Todo['priority']) {
-  switch (priority) {
-    case 'HIGH':
-      return 'bg-red-100 text-red-700';
-    case 'MEDIUM':
-      return 'bg-amber-100 text-amber-700';
-    default:
-      return 'bg-emerald-100 text-emerald-700';
-  }
-}
-
-function formatLocalDateTime(value: string | null | undefined) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-
-  return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 function getDueStatus(todo: Todo) {

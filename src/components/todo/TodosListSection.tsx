@@ -34,7 +34,6 @@ export function TodosListSection({
   totalPages,
   pageLimit,
   isLoading,
-  isError,
   isFetching,
   queryErrorMessage,
   syncWarningMessage,
