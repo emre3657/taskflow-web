@@ -1,11 +1,7 @@
 import type { UseFormHandleSubmit, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { PasswordInput } from '../ui/PasswordInput';
 import type { UpdatePasswordInput } from '@/features/profile/schemas';
-
-type FormFeedback = {
-  type: 'success' | 'error';
-  message: string;
-} | null;
+import { FeedbackBanner, type FormFeedback } from '@/components/ui/FeedbackBanner';
 
 interface PasswordSectionProps {
   username: string;
@@ -15,21 +11,6 @@ interface PasswordSectionProps {
   errors: FieldErrors<UpdatePasswordInput>;
   feedback: FormFeedback;
   isSaving: boolean;
-}
-
-function FeedbackBanner({ feedback }: { feedback: FormFeedback }) {
-  if (!feedback) return null;
-
-  const tone =
-    feedback.type === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-rose-200 bg-rose-50 text-rose-700';
-
-  return (
-    <div className={`mb-4 rounded-2xl border px-4 py-3 text-sm ${tone}`}>
-      {feedback.message}
-    </div>
-  );
 }
 
 export function PasswordSection({

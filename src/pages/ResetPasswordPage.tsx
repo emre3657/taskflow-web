@@ -6,26 +6,7 @@ import { ApiError } from '@/lib/api-client';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { resetPasswordSchema, type ResetPasswordInput } from '@/features/auth/schemas';
 import { useResetPassword } from '@/features/auth/hooks';
-
-type FormFeedback = {
-  type: 'success' | 'error';
-  message: string;
-} | null;
-
-function FeedbackBanner({ feedback }: { feedback: FormFeedback }) {
-  if (!feedback) return null;
-
-  const tone =
-    feedback.type === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-rose-200 bg-rose-50 text-rose-700';
-
-  return (
-    <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${tone}`}>
-      {feedback.message}
-    </div>
-  );
-}
+import { FeedbackBanner, type FormFeedback } from '@/components/ui/FeedbackBanner';
 
 export function ResetPasswordPage() {
   const [feedback, setFeedback] = useState<FormFeedback>(null);
@@ -123,7 +104,7 @@ export function ResetPasswordPage() {
           Choose a new password for your account.
         </p>
 
-        <FeedbackBanner feedback={feedback} />
+        <FeedbackBanner feedback={feedback} borderRadius="xl" />
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
           <input type="hidden" {...register('token')} />
