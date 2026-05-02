@@ -4,6 +4,7 @@ import type {
   AuthRegisterInput,
   AuthForgotPasswordInput,
   AuthResetPasswordInput,
+  AuthConfirmEmailVerificationInput,
   RegisterResponse,
   LoginResponse,
   RefreshResponse,
@@ -11,6 +12,8 @@ import type {
   LogoutAllResponse,
   ForgotPasswordResponse,
   ResetPasswordResponse,
+  ResendVerificationEmailResponse,
+  ConfirmEmailVerificationResponse,
 } from './types';
 
 export const authApi = {
@@ -34,4 +37,12 @@ export const authApi = {
 
   resetPassword: (data: AuthResetPasswordInput): Promise<ResetPasswordResponse> =>
     apiClient.post('/auth/reset-password', data),
+
+  resendVerificationEmail: (): Promise<ResendVerificationEmailResponse> =>
+    apiClient.post('/auth/verify-email/resend', {}),
+
+  confirmEmailVerification: (
+    data: AuthConfirmEmailVerificationInput,
+  ): Promise<ConfirmEmailVerificationResponse> =>
+    apiClient.post('/auth/verify-email/confirm', data),
 };
