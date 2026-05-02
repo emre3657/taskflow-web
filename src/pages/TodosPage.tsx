@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { TodoFormValues } from '@/features/todos/schemas';
 import type { Todo, TodoFormInput } from '@/features/todos/types';
+import { useAuth } from '@/features/auth/auth-context';
 import { TodoFilters } from '@/components/todo/TodoFilters';
 import { TodosHeader } from '@/components/todo/TodosHeader';
 import { TodosListSection } from '@/components/todo/TodosListSection';
@@ -19,6 +20,18 @@ export function TodosPage() {
   const [todoToDelete, setTodoToDelete] = useState<Todo | null>(null);
   const [viewingTodo, setViewingTodo] = useState<Todo | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const [postRegisterReason, setPostRegisterReason] = useState<string | null>(null);
+
+  useEffect(() => {
+    const reason = sessionStorage.getItem('post-register-message');
+
+    if (reason) {
+      setPostRegisterReason(reason);
+      sessionStorage.removeItem('post-register-message');
+    }
+  }, []);
+
+  const { user } = useAuth();
 
   const {
     search,
@@ -58,6 +71,22 @@ export function TodosPage() {
 
   const isSaving = createTodo.status === 'pending' || updateTodo.status === 'pending';
   const isDeleting = deleteTodo.status === 'pending';
+
+  const registerVerificationFeedback =
+  postRegisterReason === 'verify-email-sent'
+    ? {
+        message: 'We sent a verification link to your email address.',
+        className: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+      }
+    : null;
+
+  const emailVerificationBanner =
+    !registerVerificationFeedback && user && !user.emailVerifiedAt
+      ? {
+          message: 'Please verify your email to secure your account.',
+          className: 'border-amber-200 bg-amber-50 text-amber-800',
+        }
+      : null;
 
   const openCreateModal = () => {
     setMutationError(null);
@@ -197,6 +226,22 @@ export function TodosPage() {
         }}
         onCreateTodo={openCreateModal}
       />
+
+      {registerVerificationFeedback ? (
+        <div
+          className={`mb-6 rounded-2xl border px-4 py-3 text-sm ${registerVerificationFeedback.className}`}
+        >
+          {registerVerificationFeedback.message}
+        </div>
+      ) : null}
+
+      {emailVerificationBanner ? (
+        <div
+          className={`mb-6 rounded-2xl border px-4 py-3 text-sm ${emailVerificationBanner.className}`}
+        >
+          {emailVerificationBanner.message}
+        </div>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
         <div className="xl:sticky xl:top-[90px] xl:self-start">

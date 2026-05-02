@@ -22,7 +22,8 @@ export function LoginPage() {
       location.state.reason === 'auth-required' ||
       location.state.reason === 'logged-out' ||
       location.state.reason === 'logged-out-all' ||
-      location.state.reason === 'password-reset-success'
+      location.state.reason === 'password-reset-success' ||
+      location.state.reason === 'email-verified-success'
     )
       ? location.state.reason
       : null;
@@ -51,6 +52,11 @@ export function LoginPage() {
       : routeReason === 'password-reset-success'
       ? {
           message: 'Your password has been reset successfully. Please log in.',
+          className: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+        }
+      : routeReason === 'email-verified-success'
+      ? {
+          message: 'Your email has been verified successfully. You can log in now.',
           className: 'border-emerald-200 bg-emerald-50 text-emerald-800',
         }
       : null;

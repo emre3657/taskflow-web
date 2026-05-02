@@ -9,6 +9,9 @@ interface ProfileInfoSectionProps {
   errors: FieldErrors<UpdateProfileInput>;
   feedback: FormFeedback;
   isSaving: boolean;
+  emailVerifiedAt: string | null;
+  isResendingVerification: boolean;
+  onResendVerification: () => void | Promise<void>;
 }
 
 export function ProfileInfoSection({
@@ -18,7 +21,12 @@ export function ProfileInfoSection({
   errors,
   feedback,
   isSaving,
+  emailVerifiedAt,
+  isResendingVerification,
+  onResendVerification,
 }: ProfileInfoSectionProps) {
+  const isVerified = Boolean(emailVerifiedAt);
+
   return (
     <section className="rounded-3xl bg-white p-6 shadow-sm">
       <div className="mb-6">
@@ -37,13 +45,34 @@ export function ProfileInfoSection({
               Email verification
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              Verification flow will be added in the next step.
+              {isVerified
+                ? 'Your email address has been verified.'
+                : 'Your email is not verified yet. Verify it to secure your account.'}
             </p>
           </div>
 
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-            Not verified yet
-          </span>
+          <div className="flex items-center gap-3">
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                isVerified
+                  ? 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'border border-amber-200 bg-amber-50 text-amber-700'
+              }`}
+            >
+              {isVerified ? 'Verified' : 'Not verified'}
+            </span>
+
+            {!isVerified ? (
+              <button
+                type="button"
+                onClick={onResendVerification}
+                disabled={isResendingVerification}
+                className="cursor-pointer rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isResendingVerification ? 'Sending...' : 'Resend email'}
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
 

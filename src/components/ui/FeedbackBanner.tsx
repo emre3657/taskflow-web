@@ -1,5 +1,5 @@
 export type FormFeedback = {
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'info';
   message: string;
 } | null;
 
@@ -15,9 +15,11 @@ export function FeedbackBanner({
   if (!feedback) return null;
 
   const tone =
-    feedback.type === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-rose-200 bg-rose-50 text-rose-700';
+  feedback.type === 'success'
+    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    : feedback.type === 'error'
+    ? 'border-rose-200 bg-rose-50 text-rose-700'
+    : 'border-amber-200 bg-amber-50 text-amber-800';
 
   return (
     <div className={`mb-4 rounded-${borderRadius} border px-4 py-3 text-sm ${tone}`}>

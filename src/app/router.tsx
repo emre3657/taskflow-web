@@ -10,6 +10,7 @@ import { TodosPage } from '@/pages/TodosPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
+import { VerifyEmailPage } from '@/pages/VerifyEmailPage';
 
 export const router = createBrowserRouter([
   {
@@ -61,5 +62,10 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  
+  {
+    path: '/verify-email',
+    element: <VerifyEmailPage />,
   },
 ]);

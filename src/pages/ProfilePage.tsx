@@ -8,6 +8,7 @@ import { DeleteAccountModal } from '@/components/profile/DeleteAccountModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ApiError } from '@/lib/api-client';
 import { getFriendlyErrorMessage } from '@/utils/error';
+import { useResendVerificationEmail } from '@/features/auth/hooks';
 import {
   useDeleteMe,
   useMe,
@@ -22,7 +23,7 @@ import {
 } from '@/features/profile/schemas';
 
 type FormFeedback = {
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'info';
   message: string;
 } | null;
 
@@ -37,6 +38,7 @@ export function ProfilePage() {
   const updateMe = useUpdateMe();
   const updatePassword = useUpdatePassword();
   const deleteMe = useDeleteMe();
+  const resendVerificationEmail = useResendVerificationEmail();
 
   const {
     register: registerProfile,
@@ -78,18 +80,40 @@ export function ProfilePage() {
   }, [me, resetProfile]);
 
   const handleProfileSubmit = async (values: UpdateProfileInput) => {
+    if (!me) return;
+
     clearProfileErrors();
     setProfileFeedback(null);
 
+    const normalizedCurrentUsername = me.username.trim();
+    const normalizedCurrentEmail = me.email.trim();
+
+    const normalizedUsername = values.username?.trim() || undefined;
+    const normalizedEmail = values.email?.trim() || undefined;
+
+    if (!normalizedUsername && !normalizedEmail) {
+      setProfileFeedback({
+        type: 'error',
+        message: 'At least one of username or email must be provided.',
+      });
+      return;
+    }
+
     const payload: UpdateProfileInput = {
-      username: values.username?.trim() || undefined,
-      email: values.email?.trim() || undefined,
+      ...(normalizedUsername !== undefined &&
+        normalizedUsername !== normalizedCurrentUsername && {
+          username: normalizedUsername,
+        }),
+      ...(normalizedEmail !== undefined &&
+        normalizedEmail !== normalizedCurrentEmail && {
+          email: normalizedEmail,
+        }),
     };
 
     if (!payload.username && !payload.email) {
       setProfileFeedback({
-        type: 'error',
-        message: 'At least one of username or email must be provided.',
+        type: 'info',
+        message: 'No changes were made.',
       });
       return;
     }
@@ -135,6 +159,24 @@ export function ProfilePage() {
           error,
           'Unable to update profile right now. Please try again later.',
         ),
+      });
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setProfileFeedback(null);
+
+    try {
+      const result = await resendVerificationEmail.mutateAsync();
+
+      setProfileFeedback({
+        type: 'success',
+        message: result.message,
+      });
+    } catch (error) {
+      setProfileFeedback({
+        type: 'error',
+        message: 'Unable to send verification email right now. Please try again later.',
       });
     }
   };
@@ -251,14 +293,17 @@ export function ProfilePage() {
         <ProfileHeader />
 
         <div className="space-y-6">
-          <ProfileInfoSection
-            register={registerProfile}
-            handleSubmit={handleSubmitProfile}
-            onSubmit={handleProfileSubmit}
-            errors={profileErrors}
-            feedback={profileFeedback}
-            isSaving={updateMe.isPending}
-          />
+         <ProfileInfoSection
+          register={registerProfile}
+          handleSubmit={handleSubmitProfile}
+          onSubmit={handleProfileSubmit}
+          errors={profileErrors}
+          feedback={profileFeedback}
+          isSaving={updateMe.isPending}
+          emailVerifiedAt={me.emailVerifiedAt}
+          isResendingVerification={resendVerificationEmail.isPending}
+          onResendVerification={handleResendVerification}
+        />
 
           <PasswordSection
             username={me.username}  

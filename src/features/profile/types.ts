@@ -2,6 +2,7 @@ export interface ProfileUser {
   id: string;
   username: string;
   email: string;
+  emailVerifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
