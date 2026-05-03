@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { UserMenu } from '@/components/layout/UserMenu';
+import logo from '@/assets/taskflow-logo.png';
 
 export function AppHeader() {
   return (
@@ -9,7 +10,7 @@ export function AppHeader() {
           to="/todos"
           className="text-lg font-semibold tracking-tight text-slate-900 transition hover:text-slate-700"
         >
-          <img src="/taskflow-logo.png" alt="Logo" className="h-14 w-auto bg-white" />
+          <img src={logo} alt="TaskFlow Logo" className="h-14 w-auto" />
         </Link>
 
         <UserMenu />
