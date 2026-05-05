@@ -32,6 +32,7 @@ type RefreshResponse = {
   user: {
     id: string;
     username: string;
+    emailVerifiedAt: string | null;
   };
 };
 

@@ -2,9 +2,9 @@ import { Navigate, Outlet } from 'react-router';
 import { useAuth } from '@/features/auth/auth-context';
 
 export function PublicOnlyRoute() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAuthInitialized } = useAuth();
 
-  if (isAuthenticated) {
+  if (isAuthInitialized && isAuthenticated) {
     return <Navigate to="/todos" replace />;
   }
 

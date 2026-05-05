@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { authApi } from './api';
 import type {
@@ -18,7 +18,6 @@ import { apiClient } from '@/lib/api-client';
 import { useAuth } from './auth-context';
 
 export const useRegister = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { setAuthUser } = useAuth();
 
@@ -26,18 +25,14 @@ export const useRegister = () => {
     mutationFn: (data) => authApi.register(data),
     onSuccess: (data) => {
       sessionStorage.setItem('post-register-message', 'verify-email-sent');
-
       apiClient.setAccessToken(data.accessToken);
-      queryClient.setQueryData(['auth-user'], data.user);
       setAuthUser(data.user);
-
       navigate('/todos');
     },
   });
 };
 
 export const useLogin = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { setAuthUser } = useAuth();
 
@@ -45,7 +40,6 @@ export const useLogin = () => {
     mutationFn: (data) => authApi.login(data),
     onSuccess: (data) => {
       apiClient.setAccessToken(data.accessToken);
-      queryClient.setQueryData(['auth-user'], data.user);
       setAuthUser(data.user);
       navigate('/todos');
     },

@@ -24,13 +24,10 @@ export const useUpdateMe = () => {
     mutationFn: profileApi.updateMe,
     onSuccess: (user) => {
       queryClient.setQueryData(['me'], user);
-      queryClient.setQueryData(['auth-user'], {
-        id: user.id,
-        username: user.username,
-      });
       setAuthUser({
         id: user.id,
         username: user.username,
+        emailVerifiedAt: user.emailVerifiedAt,
       });
     },
   });

@@ -8,20 +8,25 @@ import {
 } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from './api';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiError } from '@/lib/api-client';
 import type { User } from './types';
+
+type AuthBootstrapStatus = 'checking' | 'ready' | 'error';
 
 interface AuthContextValue {
   isAuthInitialized: boolean;
   isAuthenticated: boolean;
   user: User | null;
+  bootstrapStatus: AuthBootstrapStatus;
+  isBootstrapping: boolean;
+  hasBootstrapError: boolean;
   authReason:
-  | 'auth-required'
-  | 'session-expired'
-  | 'logged-out'
-  | 'logged-out-all'
-  | 'deleted-account'
-  | null;
+    | 'auth-required'
+    | 'session-expired'
+    | 'logged-out'
+    | 'logged-out-all'
+    | 'deleted-account'
+    | null;
   setAuthUser: (user: User | null) => void;
   clearAuth: (
     reason?:
@@ -39,9 +44,16 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
+  const [bootstrapStatus, setBootstrapStatus] =
+    useState<AuthBootstrapStatus>('checking');
   const [user, setUser] = useState<User | null>(null);
   const [authReason, setAuthReason] = useState<
-    'auth-required' | 'session-expired' | 'logged-out' | 'logged-out-all' | 'deleted-account' | null
+    | 'auth-required'
+    | 'session-expired'
+    | 'logged-out'
+    | 'logged-out-all'
+    | 'deleted-account'
+    | null
   >(null);
 
   useEffect(() => {
@@ -56,14 +68,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (isMounted) {
           setUser(data.user);
+          setBootstrapStatus('ready');
         }
-      } catch {
+      } catch (error: unknown) {
         apiClient.setAccessToken(null);
         queryClient.removeQueries({ queryKey: ['auth-user'] });
 
-        if (isMounted) {
-          setUser(null);
-          setAuthReason(null);
+        if (!isMounted) return;
+
+        setUser(null);
+        setAuthReason(null);
+
+        if (error instanceof ApiError && error.response.status === 401) {
+          setBootstrapStatus('ready');
+        } else {
+          setBootstrapStatus('error');
         }
       } finally {
         if (isMounted) {
@@ -72,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    bootstrapAuth();
+    void bootstrapAuth();
 
     return () => {
       isMounted = false;
@@ -93,29 +112,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const value = useMemo<AuthContextValue>(
-  () => ({
-    isAuthInitialized,
-    isAuthenticated: Boolean(user),
-    user,
-    authReason,
-    setAuthUser: (nextUser) => {
-      setUser(nextUser);
-      setAuthReason(null);
+    () => ({
+      isAuthInitialized,
+      isAuthenticated: Boolean(user),
+      user,
+      bootstrapStatus,
+      isBootstrapping: bootstrapStatus === 'checking',
+      hasBootstrapError: bootstrapStatus === 'error',
+      authReason,
+      setAuthUser: (nextUser) => {
+        setUser(nextUser);
+        setAuthReason(null);
 
-      if (nextUser) {
-        queryClient.setQueryData(['auth-user'], nextUser);
-      } else {
-        queryClient.removeQueries({ queryKey: ['auth-user'] });
-      }
-    },
-    clearAuth: (reason = null) => {
-      apiClient.setAccessToken(null);
-      setUser(null);
-      setAuthReason(reason);
-      queryClient.clear();
-    },
-  }), 
-  [authReason, isAuthInitialized, queryClient, user]
+        if (nextUser) {
+          queryClient.setQueryData(['auth-user'], nextUser);
+        } else {
+          queryClient.removeQueries({ queryKey: ['auth-user'] });
+        }
+      },
+      clearAuth: (reason = null) => {
+        apiClient.setAccessToken(null);
+        setUser(null);
+        setAuthReason(reason);
+        queryClient.clear();
+      },
+    }),
+    [authReason, bootstrapStatus, isAuthInitialized, queryClient, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,5 +1,5 @@
 {
-  "name": "todo-web",
+  "name": "taskflow-web",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
