@@ -86,6 +86,10 @@ export function TodosListSection({
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-700">
             Loading...
           </div>
+        ): isFetching && !isLoading ? (
+            <div className="flex justify-center rounded-3xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-700">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800" />
+            </div>
         ) : todos.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-sm text-slate-500">
             No todos match your filters. Add a new todo or adjust your filters.
